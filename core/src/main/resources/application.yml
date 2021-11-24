@@ -1,0 +1,37 @@
+spring:
+  profiles:
+    active:
+      - test
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+
+server:
+  port: 5027
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+rest:
+  list:
+    -
+      uri: '/test'
+      method: 'GET'
+    -
+      uri: '/test/{id}/{id2}'
+      idParam: id,id2
+      method: GET
+      answer: '[{"id":"1","data":"value"}]'
+
+
