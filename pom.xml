@@ -87,9 +87,33 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--Maven-->
-
+			<!--Generate license-->
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>4.1</version>
+				<configuration>
+					<properties>
+						<owner>Ivan Rosinskii</owner>
+						<year>2021</year>
+					</properties>
+					<licenseSets>
+						<licenseSet>
+							<header>license/LICENSE_HEADER</header>
+							<excludes>
+								<exclude>**/README</exclude>
+								<exclude>**/LICENSE</exclude>
+								<exclude>**/LICENSE_HEADER</exclude>
+								<exclude>**/pom.xml</exclude>
+								<exclude>**/src/test/resources/**</exclude>
+								<exclude>**/src/main/resources/**</exclude>
+							</excludes>
+						</licenseSet>
+					</licenseSets>
+				</configuration>
+			</plugin>
 		</plugins>
+
 		<!--Exclude resources-->
 		<resources>
 			<resource>

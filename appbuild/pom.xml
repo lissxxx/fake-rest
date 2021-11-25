@@ -20,7 +20,7 @@
     </dependencies>
 
     <build>
-        <finalName>FakeServer</finalName>
+        <finalName>FakeRest</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -28,6 +28,12 @@
                 <configuration>
                     <fork>true</fork>
                     <mainClass>io.github.ivanrosw.fakerest.core.FakeRestApplication</mainClass>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
