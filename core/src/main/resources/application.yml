@@ -7,6 +7,7 @@ logging:
   level:
     root: INFO
     org.springframework: INFO
+    io.github.ivanrosw.fakerest: INFO
 
 server:
   port: 5027
@@ -30,8 +31,21 @@ rest:
       method: 'GET'
     -
       uri: '/test/{id}/{id2}'
-      idParam: id,id2
       method: GET
       answer: '[{"id":"1","data":"value"}]'
-
-
+    -
+      uri: '/test2/{id}'
+      method: GET
+      answer: 123
+    -
+      uri: '/test2/{id}'
+      method: POST
+    -
+      uri: '/test2/{id}'
+      method: PUT
+    -
+      uri: '/test2/{id}'
+      method: DELETE
+    -
+      uri: '/test3'
+      method: POST

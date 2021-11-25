@@ -1,7 +1,7 @@
 package io.github.ivanrosw.fakerest.core.controller;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.ivanrosw.fakerest.core.conf.ConfigException;
 import io.github.ivanrosw.fakerest.core.model.ControllerData;
 import io.github.ivanrosw.fakerest.core.model.ControllerMode;
 import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
@@ -14,17 +14,34 @@ import java.util.Map;
 
 public class GetController extends FakeController {
 
-    public GetController(ControllerConfig controllerConfig, ControllerData controllerData, JsonUtils jsonUtils) throws ConfigException {
-        super(controllerConfig, controllerData, jsonUtils);
+    public GetController(ControllerMode mode, ControllerData controllerData, ControllerConfig controllerConfig, JsonUtils jsonUtils) {
+        super(mode, controllerData, controllerConfig, jsonUtils);
     }
 
     @Override
     public ResponseEntity<String> handle(HttpServletRequest request) {
-        if (mode == ControllerMode.ID) {
-            return handleId(request);
+        ResponseEntity<String> result;
+        if (mode == ControllerMode.COLLECTION_ALL) {
+            result = handleAll();
+        } else if (mode == ControllerMode.COLLECTION_ONE) {
+            result = handleId(request);
         } else {
-            return handleNoId();
+            result = handleNoId();
         }
+        return result;
+    }
+
+    private ResponseEntity<String> handleAll() {
+        ResponseEntity<String> result;
+        Map<String, ObjectNode> allData = controllerData.getAllData(controllerConfig.getUri());
+        if (allData.size() > 0) {
+            ArrayNode array = jsonUtils.createArray();
+            allData.forEach((key, data) -> array.add(data));
+            result = new ResponseEntity<>(array.toString(), HttpStatus.OK);
+        } else {
+            result = new ResponseEntity<>(jsonUtils.createArray().toString(), HttpStatus.OK);
+        }
+        return result;
     }
 
     private ResponseEntity<String> handleId(HttpServletRequest request) {
@@ -32,12 +49,14 @@ public class GetController extends FakeController {
 
         Map<String, String> urlIds = getUrlIds(request);
         String key = controllerData.buildKey(urlIds, controllerConfig.getIdParams());
-        ObjectNode data = controllerData.getData(controllerConfig.getUri(), key);
 
-        if (data != null) {
-            result =  new ResponseEntity<>(data.toString(), HttpStatus.OK);
+        if (controllerData.containsKey(controllerConfig.getUri(), key)) {
+            ObjectNode data = controllerData.getData(controllerConfig.getUri(), key);
+            result = new ResponseEntity<>(data.toString(), HttpStatus.OK);
         } else {
-            result = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            ObjectNode error = jsonUtils.createJson();
+            jsonUtils.putString(error, DESCRIPTION_PARAM, String.format(KEY_NOT_FOUND, key));
+            result = new ResponseEntity<>(error.toString(), HttpStatus.NOT_FOUND);
         }
         return result;
     }

@@ -29,6 +29,10 @@ public class ControllerData {
         allData = new ConcurrentHashMap<>();
     }
 
+    public Map<String, ObjectNode> getAllData(String url) {
+        return getDataCollection(url);
+    }
+
     public ObjectNode getData(String url, String key) {
         return getDataCollection(url).get(key);
     }
@@ -39,6 +43,10 @@ public class ControllerData {
 
     public boolean containsKey(String url, String key) {
         return getDataCollection(url).containsKey(key);
+    }
+
+    public void deleteData(String url, String key) {
+        getDataCollection(url).remove(key);
     }
 
     private Map<String, ObjectNode> getDataCollection(String url) {

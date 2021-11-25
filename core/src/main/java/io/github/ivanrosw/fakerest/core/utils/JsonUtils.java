@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -18,6 +19,14 @@ public class JsonUtils {
     @PostConstruct
     private void init() {
         mapper = new ObjectMapper();
+    }
+
+    public ObjectNode createJson() {
+        return mapper.createObjectNode();
+    }
+
+    public ArrayNode createArray() {
+        return mapper.createArrayNode();
     }
 
     private <T> T toJson(String json, Class<T> type) {
@@ -45,6 +54,27 @@ public class JsonUtils {
         return toJson(json, ArrayNode.class);
     }
 
+    private <T> T toJson(Map<?, ?> map, Class<T> type) {
+        T result = null;
+        if (map != null) {
+            try {
+                result = mapper.convertValue(map, type);
+            } catch (Exception e) {
+                log.error("Error while converting map to json", e);
+            }
+        }
+        return result;
+    }
+
+    public JsonNode toJsonNode(Map<?, ?> data) {
+        return toJson(data, JsonNode.class);
+    }
+
+    public ObjectNode toObjectNode(Map<?, ?> data) {
+        return toJson(data, ObjectNode.class);
+    }
+
+
     public String getString(JsonNode json, String key) {
         String result = null;
         if (json != null && json.has(key)) {
@@ -54,5 +84,13 @@ public class JsonUtils {
             }
         }
         return result;
+    }
+
+    public void putString(ObjectNode json, String key, String value) {
+        if (json != null && key != null && !key.isBlank()) {
+            json.put(key, value);
+        } else {
+            if (log.isTraceEnabled()) log.trace("Data [{}] with key [{}] not put to json [{}]", value, key, json);
+        }
     }
 }
