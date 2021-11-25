@@ -18,7 +18,7 @@ public class PutController extends FakeModifyController {
     protected ResponseEntity<String> handleOne(HttpServletRequest request) {
         ResponseEntity<String> result;
         try {
-            String body = readBody(request);
+            String body = httpUtils.readBody(request);
             if (body != null && !body.isBlank()) {
                 result = updateOne(request, body);
             } else {
@@ -35,7 +35,7 @@ public class PutController extends FakeModifyController {
         ObjectNode bodyJson = jsonUtils.toObjectNode(body);
 
         if (bodyJson != null && !bodyJson.isNull()) {
-            Map<String, String> ids = getUrlIds(request);
+            Map<String, String> ids = httpUtils.getUrlIds(request);
             String key = controllerData.buildKey(ids, controllerConfig.getIdParams());
 
             if (controllerData.containsKey(controllerConfig.getUri(), key)) {

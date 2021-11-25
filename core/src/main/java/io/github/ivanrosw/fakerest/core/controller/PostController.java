@@ -19,7 +19,7 @@ public class PostController extends FakeModifyController {
     protected ResponseEntity<String> handleOne(HttpServletRequest request) {
         ResponseEntity<String> result;
         try {
-            String body = readBody(request);
+            String body = httpUtils.readBody(request);
             if (body != null && !body.isBlank()) {
                 result = saveOne(body);
             } else {

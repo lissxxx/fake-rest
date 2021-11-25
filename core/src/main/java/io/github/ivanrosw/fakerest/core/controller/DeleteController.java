@@ -17,7 +17,7 @@ public class DeleteController extends FakeModifyController {
     protected ResponseEntity<String> handleOne(HttpServletRequest request) {
         ResponseEntity<String> result;
 
-        String key = controllerData.buildKey(getUrlIds(request), controllerConfig.getIdParams());
+        String key = controllerData.buildKey(httpUtils.getUrlIds(request), controllerConfig.getIdParams());
         if (controllerData.containsKey(controllerConfig.getUri(), key)) {
             ObjectNode data = controllerData.getData(controllerConfig.getUri(), key);
             controllerData.deleteData(controllerConfig.getUri(), key);

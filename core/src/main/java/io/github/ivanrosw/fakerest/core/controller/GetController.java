@@ -45,7 +45,7 @@ public class GetController extends FakeController {
     private ResponseEntity<String> handleId(HttpServletRequest request) {
         ResponseEntity<String> result;
 
-        Map<String, String> urlIds = getUrlIds(request);
+        Map<String, String> urlIds = httpUtils.getUrlIds(request);
         String key = controllerData.buildKey(urlIds, controllerConfig.getIdParams());
 
         if (controllerData.containsKey(controllerConfig.getUri(), key)) {

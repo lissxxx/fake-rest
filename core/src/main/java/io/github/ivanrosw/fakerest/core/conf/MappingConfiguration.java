@@ -7,9 +7,10 @@ import io.github.ivanrosw.fakerest.core.controller.*;
 import io.github.ivanrosw.fakerest.core.model.ControllerData;
 import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
 import io.github.ivanrosw.fakerest.core.model.ControllerMode;
+import io.github.ivanrosw.fakerest.core.model.RouterConfig;
 import io.github.ivanrosw.fakerest.core.utils.GeneratorUtils;
 import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
-import io.github.ivanrosw.fakerest.core.utils.UrlUtils;
+import io.github.ivanrosw.fakerest.core.utils.HttpUtils;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -30,7 +32,10 @@ import java.util.*;
 public class MappingConfiguration {
 
     @Setter(AccessLevel.PACKAGE)
-    private List<ControllerConfig> list;
+    private List<ControllerConfig> controllers;
+
+    @Setter(AccessLevel.PACKAGE)
+    private List<RouterConfig> routers;
 
     @Autowired
     private RequestMappingHandlerMapping handlerMapping;
@@ -40,7 +45,7 @@ public class MappingConfiguration {
     @Autowired
     private JsonUtils jsonUtils;
     @Autowired
-    private UrlUtils urlUtils;
+    private HttpUtils httpUtils;
     @Autowired
     private GeneratorUtils generatorUtils;
 
@@ -48,21 +53,26 @@ public class MappingConfiguration {
     private void init() throws ConfigException {
         beforeInitCheck();
         initRest();
+        initRedirections();
     }
 
     private void beforeInitCheck() throws ConfigException {
-        if (list == null || list.isEmpty()) {
+        Map<RequestMethod, List<String>> methodsUrls = new EnumMap<>(RequestMethod.class);
+        beforeInitControllersCheck(methodsUrls);
+        beforeInitRoutersCheck(methodsUrls);
+    }
+
+    private void beforeInitControllersCheck(Map<RequestMethod, List<String>> methodsUrls) throws ConfigException {
+        if (controllers == null || controllers.isEmpty()) {
             throw new ConfigException("Rest list must be specified. See readme");
         }
 
-        Map<RequestMethod, List<String>> methodsUrls = new EnumMap<>(RequestMethod.class);
-
-        for (ControllerConfig conf : list) {
+        for (ControllerConfig conf : controllers) {
             if (conf.getUri() == null || conf.getUri().isBlank()) {
-                throw new ConfigException("Uri must be not blank");
+                throw new ConfigException("Controller: Uri must be not blank");
             }
             if (conf.getMethod() == null) {
-                throw new ConfigException("Method must be specified");
+                throw new ConfigException("Controller: Method must be specified");
             }
 
             List<String> urls = methodsUrls.computeIfAbsent(conf.getMethod(), key -> new ArrayList<>());
@@ -74,8 +84,27 @@ public class MappingConfiguration {
         }
     }
 
+    private void beforeInitRoutersCheck(Map<RequestMethod, List<String>> methodsUrls) throws ConfigException {
+        if (routers == null) {
+            routers = new ArrayList<>();
+        }
+        for (RouterConfig conf : routers) {
+            if (conf.getUri() == null || conf.getToUrl() == null || conf.getUri().isBlank() || conf.getToUrl().isBlank()) {
+                throw new ConfigException("Router: Uri and toUrl must be not blank");
+            }
+            if (conf.getMethod() == null) {
+                throw new ConfigException("Router: Method must be specified");
+            }
+
+            List<String> urls = methodsUrls.computeIfAbsent(conf.getMethod(), key -> new ArrayList<>());
+            if (urls.contains(conf.getUri())) {
+                throw new ConfigException(String.format("Duplicated urls: %s", conf.getUri()));
+            }
+        }
+    }
+
     private void initRest() throws ConfigException {
-        for (ControllerConfig conf : list) {
+        for (ControllerConfig conf : controllers) {
             switch (conf.getMethod()) {
                 case GET:
                     createGetController(conf);
@@ -97,13 +126,13 @@ public class MappingConfiguration {
     }
 
     private void createGetController(ControllerConfig conf) throws ConfigException {
-        List<String> idParams = urlUtils.getIdParams(conf.getUri());
+        List<String> idParams = httpUtils.getIdParams(conf.getUri());
         ControllerMode mode = identifyMode(idParams);
 
         if (mode == ControllerMode.COLLECTION) {
             conf.setIdParams(idParams);
 
-            String baseUri = urlUtils.getBaseUri(conf.getUri());
+            String baseUri = httpUtils.getBaseUri(conf.getUri());
             RequestMappingInfo getAllMappingInfo = RequestMappingInfo
                     .paths(baseUri)
                     .methods(RequestMethod.GET)
@@ -114,6 +143,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(getAllMappingInfo, getAllController);
@@ -128,6 +158,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(getOneMappingInfo, getOneController);
@@ -142,6 +173,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(getStaticMappingInfo, getStaticController);
@@ -149,13 +181,13 @@ public class MappingConfiguration {
     }
 
     private void createPostController(ControllerConfig conf) throws ConfigException {
-        List<String> idParams = urlUtils.getIdParams(conf.getUri());
+        List<String> idParams = httpUtils.getIdParams(conf.getUri());
         ControllerMode mode = identifyMode(idParams);
 
         if (mode == ControllerMode.COLLECTION) {
             conf.setIdParams(idParams);
 
-            String baseUri = urlUtils.getBaseUri(conf.getUri());
+            String baseUri = httpUtils.getBaseUri(conf.getUri());
             RequestMappingInfo createOneInfo = RequestMappingInfo
                     .paths(baseUri)
                     .methods(RequestMethod.POST)
@@ -166,6 +198,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(createOneInfo, createOneController);
@@ -180,6 +213,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(createStaticInfo, createStaticController);
@@ -187,7 +221,7 @@ public class MappingConfiguration {
     }
 
     private void createPutController(ControllerConfig conf) throws ConfigException {
-        List<String> idParams = urlUtils.getIdParams(conf.getUri());
+        List<String> idParams = httpUtils.getIdParams(conf.getUri());
         ControllerMode mode = identifyMode(idParams);
 
         if (mode == ControllerMode.COLLECTION) {
@@ -203,6 +237,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(updateOneInfo, updateOneController);
@@ -217,6 +252,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(updateStaticInfo, updateStaticController);
@@ -224,7 +260,7 @@ public class MappingConfiguration {
     }
 
     private void createDeleteController(ControllerConfig conf) throws ConfigException {
-        List<String> idParams = urlUtils.getIdParams(conf.getUri());
+        List<String> idParams = httpUtils.getIdParams(conf.getUri());
         ControllerMode mode = identifyMode(idParams);
 
         if (mode == ControllerMode.COLLECTION) {
@@ -240,6 +276,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(deleteOneInfo, deleteOneController);
@@ -254,6 +291,7 @@ public class MappingConfiguration {
                     .controllerData(controllerData)
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
+                    .httpUtils(httpUtils)
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(deleteStaticInfo, deleteStaticController);
@@ -282,6 +320,23 @@ public class MappingConfiguration {
     private void addAnswerData(ControllerConfig controllerConfig, ObjectNode data) {
         String key = controllerData.buildKey(data, controllerConfig.getIdParams());
         controllerData.putData(controllerConfig.getUri(), key, data);
+    }
+
+    private void initRedirections() throws ConfigException {
+        for (RouterConfig conf : routers) {
+            RequestMappingInfo routerInfo = RequestMappingInfo
+                    .paths(conf.getUri())
+                    .methods(conf.getMethod())
+                    .build();
+
+            RouterController routerController = new RouterController(conf, httpUtils, new RestTemplate());
+            try {
+                handlerMapping.registerMapping(routerInfo, routerController,
+                        RouterController.class.getMethod("handle", HttpServletRequest.class));
+            } catch (Exception e) {
+                throw new ConfigException(String.format("Error while register router [%s]", routerInfo), e);
+            }
+        }
     }
 
     private void registerController(RequestMappingInfo requestMappingInfo, FakeController fakeController) throws ConfigException {

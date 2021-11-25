@@ -25,10 +25,7 @@ spring:
       on-profile: test
 
 rest:
-  list:
-    -
-      uri: '/test'
-      method: 'GET'
+  controllers:
     -
       uri: '/test/{id}/{id2}'
       method: GET
@@ -53,4 +50,13 @@ rest:
       method: DELETE
     -
       uri: '/test3'
+      method: POST
+  routers:
+    -
+      uri: '/test'
+      toUrl: '/test/'
+      method: GET
+    -
+      uri: '/test'
+      toUrl: '/test/'
       method: POST
