@@ -50,31 +50,6 @@ public class JsonUtils {
         return toJson(json, ObjectNode.class);
     }
 
-    public ArrayNode toArrayNode(String json) {
-        return toJson(json, ArrayNode.class);
-    }
-
-    private <T> T toJson(Map<?, ?> map, Class<T> type) {
-        T result = null;
-        if (map != null) {
-            try {
-                result = mapper.convertValue(map, type);
-            } catch (Exception e) {
-                log.error("Error while converting map to json", e);
-            }
-        }
-        return result;
-    }
-
-    public JsonNode toJsonNode(Map<?, ?> data) {
-        return toJson(data, JsonNode.class);
-    }
-
-    public ObjectNode toObjectNode(Map<?, ?> data) {
-        return toJson(data, ObjectNode.class);
-    }
-
-
     public String getString(JsonNode json, String key) {
         String result = null;
         if (json != null && json.has(key)) {

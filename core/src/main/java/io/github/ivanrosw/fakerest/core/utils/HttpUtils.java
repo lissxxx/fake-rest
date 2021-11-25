@@ -1,11 +1,13 @@
 package io.github.ivanrosw.fakerest.core.utils;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -39,5 +41,24 @@ public class HttpUtils {
 
     public String readBody(HttpServletRequest request) throws IOException {
         return request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    public HttpHeaders readHeaders(HttpServletRequest request) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        Enumeration<String> headersNames = request.getHeaderNames();
+        if (headersNames != null) {
+            while (headersNames.hasMoreElements()) {
+                String headerName = headersNames.nextElement();
+
+                Enumeration<String> headerValues = request.getHeaders(headerName);
+                while (headerValues.hasMoreElements()) {
+                    String headerValue = headerValues.nextElement();
+                    httpHeaders.add(headerName, headerValue);
+                }
+            }
+        }
+
+        return httpHeaders;
     }
 }

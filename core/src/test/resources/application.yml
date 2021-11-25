@@ -27,30 +27,40 @@ spring:
 rest:
   controllers:
     -
-      uri: '/test/{id}/{id2}'
+      uri: '/test/{id}'
       method: GET
     -
-      uri: '/test/{id}/{id2}'
+      uri: '/test/{id}'
       method: POST
       generateId: true
       generateIdPatterns:
         id: UUID
     -
-      uri: '/test2/{id}'
-      method: GET
-      answer: 123
-    -
-      uri: '/test2/{id}'
-      method: POST
-    -
-      uri: '/test2/{id}'
+      uri: '/test/{id}'
       method: PUT
     -
-      uri: '/test2/{id}'
+      uri: '/test/{id}'
       method: DELETE
     -
-      uri: '/test3'
+      uri: '/test2'
+      method: GET
+    -
+      uri: '/test2'
       method: POST
+    -
+      uri: '/test2'
+      method: PUT
+    -
+      uri: '/test2'
+      method: DELETE
+    -
+      uri: '/test3/{id}'
+      method: POST
+    -
+      uri: '/test3'
+      method: GET
+      answer: 'expected answer'
+
   routers:
     -
       uri: '/test'
@@ -58,5 +68,5 @@ rest:
       method: GET
     -
       uri: '/test'
-      toUrl: '/test/'
+      toUrl: 'http://localhost:8450/test/'
       method: POST

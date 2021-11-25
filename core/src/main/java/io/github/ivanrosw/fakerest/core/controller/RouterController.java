@@ -2,15 +2,14 @@ package io.github.ivanrosw.fakerest.core.controller;
 
 import io.github.ivanrosw.fakerest.core.model.RouterConfig;
 import io.github.ivanrosw.fakerest.core.utils.HttpUtils;
+import io.github.ivanrosw.fakerest.core.utils.RestClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Enumeration;
 
 @Slf4j
 @AllArgsConstructor
@@ -18,18 +17,18 @@ public class RouterController {
 
     private RouterConfig conf;
     private HttpUtils httpUtils;
-    private RestTemplate restTemplate;
+    private RestClient restClient;
 
     public ResponseEntity<String> handle(HttpServletRequest request) {
         ResponseEntity<String> result;
         try {
             HttpMethod method = HttpMethod.resolve(conf.getMethod().name());
+            URI uri = buildUri(request);
+            String body = httpUtils.readBody(request);
+            HttpHeaders headers = httpUtils.readHeaders(request);
+
             if (method != null) {
-                RequestEntity<String> requestEntity = RequestEntity
-                        .method(method, buildUri(request))
-                        .headers(createHeaders(request))
-                        .body(httpUtils.readBody(request));
-                result = restTemplate.exchange(requestEntity, String.class);
+                result = restClient.execute(method, uri, headers, body);
 
             } else {
                 log.error("Cant convert method [{}] to httpMethod", conf.getMethod());
@@ -59,22 +58,4 @@ public class RouterController {
         return result;
     }
 
-    private HttpHeaders createHeaders(HttpServletRequest request) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-
-        Enumeration<String> headersNames = request.getHeaderNames();
-        if (headersNames != null) {
-            while (headersNames.hasMoreElements()) {
-                String headerName = headersNames.nextElement();
-
-                Enumeration<String> headerValues = request.getHeaders(headerName);
-                while (headerValues.hasMoreElements()) {
-                    String headerValue = headerValues.nextElement();
-                    httpHeaders.add(headerName, headerValue);
-                }
-            }
-        }
-
-        return httpHeaders;
-    }
 }

@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 public abstract class FakeController {
 
     protected static final String KEY_ALREADY_EXIST = "key [%s] already exist";
-    protected static final String DATA_NOT_JSON = "data [%s] not json";
+    protected static final String DATA_NOT_JSON = "data [%s] is not json";
     protected static final String KEY_NOT_FOUND = "key [%s] not found";
 
     protected static final String DESCRIPTION_PARAM = "description";

@@ -11,6 +11,7 @@ import io.github.ivanrosw.fakerest.core.model.RouterConfig;
 import io.github.ivanrosw.fakerest.core.utils.GeneratorUtils;
 import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
 import io.github.ivanrosw.fakerest.core.utils.HttpUtils;
+import io.github.ivanrosw.fakerest.core.utils.RestClient;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -48,6 +48,8 @@ public class MappingConfiguration {
     private HttpUtils httpUtils;
     @Autowired
     private GeneratorUtils generatorUtils;
+    @Autowired
+    private RestClient restClient;
 
     @PostConstruct
     private void init() throws ConfigException {
@@ -121,7 +123,6 @@ public class MappingConfiguration {
                 default:
                     throw new ConfigException(String.format("Method [%s] not supported", conf.getMethod()));
             }
-            loadAnswerData(conf);
         }
     }
 
@@ -162,6 +163,8 @@ public class MappingConfiguration {
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(getOneMappingInfo, getOneController);
+
+            loadAnswerData(conf);
         } else {
             RequestMappingInfo getStaticMappingInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -202,6 +205,8 @@ public class MappingConfiguration {
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(createOneInfo, createOneController);
+
+            loadAnswerData(conf);
         } else {
             RequestMappingInfo createStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -241,6 +246,8 @@ public class MappingConfiguration {
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(updateOneInfo, updateOneController);
+
+            loadAnswerData(conf);
         } else {
             RequestMappingInfo updateStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -280,6 +287,8 @@ public class MappingConfiguration {
                     .generatorUtils(generatorUtils)
                     .build();
             registerController(deleteOneInfo, deleteOneController);
+
+            loadAnswerData(conf);
         } else {
             RequestMappingInfo deleteStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -329,7 +338,7 @@ public class MappingConfiguration {
                     .methods(conf.getMethod())
                     .build();
 
-            RouterController routerController = new RouterController(conf, httpUtils, new RestTemplate());
+            RouterController routerController = new RouterController(conf, httpUtils, restClient);
             try {
                 handlerMapping.registerMapping(routerInfo, routerController,
                         RouterController.class.getMethod("handle", HttpServletRequest.class));

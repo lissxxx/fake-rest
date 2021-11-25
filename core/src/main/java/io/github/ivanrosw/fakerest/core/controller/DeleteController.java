@@ -26,7 +26,7 @@ public class DeleteController extends FakeModifyController {
         } else {
             ObjectNode error = jsonUtils.createJson();
             jsonUtils.putString(error, DESCRIPTION_PARAM, String.format(KEY_NOT_FOUND, key));
-            result = new ResponseEntity<>(error.toString(), HttpStatus.NOT_FOUND);
+            result = new ResponseEntity<>(error.toString(), HttpStatus.BAD_REQUEST);
         }
 
         return result;
