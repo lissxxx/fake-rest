@@ -7,6 +7,7 @@ import io.github.ivanrosw.fakerest.core.controller.*;
 import io.github.ivanrosw.fakerest.core.model.ControllerData;
 import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
 import io.github.ivanrosw.fakerest.core.model.ControllerMode;
+import io.github.ivanrosw.fakerest.core.utils.GeneratorUtils;
 import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
 import io.github.ivanrosw.fakerest.core.utils.UrlUtils;
 import lombok.AccessLevel;
@@ -40,6 +41,8 @@ public class MappingConfiguration {
     private JsonUtils jsonUtils;
     @Autowired
     private UrlUtils urlUtils;
+    @Autowired
+    private GeneratorUtils generatorUtils;
 
     @PostConstruct
     private void init() throws ConfigException {
@@ -89,7 +92,7 @@ public class MappingConfiguration {
                 default:
                     throw new ConfigException(String.format("Method [%s] not supported", conf.getMethod()));
             }
-            identifyAnswerData(conf);
+            loadAnswerData(conf);
         }
     }
 
@@ -105,21 +108,42 @@ public class MappingConfiguration {
                     .paths(baseUri)
                     .methods(RequestMethod.GET)
                     .build();
-            FakeController getAllController = new GetController(ControllerMode.COLLECTION_ALL, controllerData, conf, jsonUtils);
+
+            FakeController getAllController = GetController.builder()
+                    .mode(ControllerMode.COLLECTION_ALL)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(getAllMappingInfo, getAllController);
 
             RequestMappingInfo getOneMappingInfo = RequestMappingInfo
                     .paths(conf.getUri())
                     .methods(RequestMethod.GET)
                     .build();
-            FakeController getOneController = new GetController(ControllerMode.COLLECTION_ONE, controllerData, conf, jsonUtils);
+
+            FakeController getOneController = GetController.builder()
+                    .mode(ControllerMode.COLLECTION_ONE)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(getOneMappingInfo, getOneController);
         } else {
             RequestMappingInfo getStaticMappingInfo = RequestMappingInfo
                     .paths(conf.getUri())
                     .methods(RequestMethod.GET)
                     .build();
-            FakeController getStaticController = new GetController(ControllerMode.STATIC, controllerData, conf, jsonUtils);
+
+            FakeController getStaticController =  GetController.builder()
+                    .mode(ControllerMode.STATIC)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(getStaticMappingInfo, getStaticController);
         }
     }
@@ -136,14 +160,28 @@ public class MappingConfiguration {
                     .paths(baseUri)
                     .methods(RequestMethod.POST)
                     .build();
-            FakeController createOneController = new PostController(ControllerMode.COLLECTION_ONE, controllerData, conf, jsonUtils);
+
+            FakeController createOneController = PostController.builder()
+                    .mode(ControllerMode.COLLECTION_ONE)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(createOneInfo, createOneController);
         } else {
             RequestMappingInfo createStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
                     .methods(RequestMethod.POST)
                     .build();
-            FakeController createStaticController = new PostController(ControllerMode.STATIC, controllerData, conf, jsonUtils);
+
+            FakeController createStaticController = PostController.builder()
+                    .mode(ControllerMode.STATIC)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(createStaticInfo, createStaticController);
         }
     }
@@ -159,14 +197,28 @@ public class MappingConfiguration {
                     .paths(conf.getUri())
                     .methods(RequestMethod.PUT)
                     .build();
-            FakeController updateOneController = new PutController(ControllerMode.COLLECTION_ONE, controllerData, conf, jsonUtils);
+
+            FakeController updateOneController = PutController.builder()
+                    .mode(ControllerMode.COLLECTION_ONE)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(updateOneInfo, updateOneController);
         } else {
             RequestMappingInfo updateStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
                     .methods(RequestMethod.PUT)
                     .build();
-            FakeController updateStaticController = new PutController(ControllerMode.STATIC, controllerData, conf, jsonUtils);
+
+            FakeController updateStaticController = PutController.builder()
+                    .mode(ControllerMode.STATIC)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(updateStaticInfo, updateStaticController);
         }
     }
@@ -182,14 +234,28 @@ public class MappingConfiguration {
                     .paths(conf.getUri())
                     .methods(RequestMethod.DELETE)
                     .build();
-            FakeController deleteOneController = new DeleteController(ControllerMode.COLLECTION_ONE, controllerData, conf, jsonUtils);
+
+            FakeController deleteOneController = DeleteController.builder()
+                    .mode(ControllerMode.COLLECTION_ONE)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(deleteOneInfo, deleteOneController);
         } else {
             RequestMappingInfo deleteStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
                     .methods(RequestMethod.DELETE)
                     .build();
-            FakeController deleteStaticController = new DeleteController(ControllerMode.STATIC, controllerData, conf, jsonUtils);
+
+            FakeController deleteStaticController = DeleteController.builder()
+                    .mode(ControllerMode.STATIC)
+                    .controllerData(controllerData)
+                    .controllerConfig(conf)
+                    .jsonUtils(jsonUtils)
+                    .generatorUtils(generatorUtils)
+                    .build();
             registerController(deleteStaticInfo, deleteStaticController);
         }
     }
@@ -198,7 +264,7 @@ public class MappingConfiguration {
         return idParams.isEmpty() ? ControllerMode.STATIC : ControllerMode.COLLECTION;
     }
 
-    private void identifyAnswerData(ControllerConfig conf) {
+    private void loadAnswerData(ControllerConfig conf) {
         if (conf.getAnswer() != null) {
             JsonNode answer = jsonUtils.toJsonNode(conf.getAnswer());
 

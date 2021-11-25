@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -20,6 +21,10 @@ public class ControllerConfig {
     private String answer;
 
     private List<String> idParams;
+
+    private boolean generateId;
+
+    private Map<String, GeneratorPattern> generateIdPatterns;
 
     public ControllerConfig() {
         idParams = new ArrayList<>();

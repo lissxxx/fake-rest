@@ -1,9 +1,9 @@
 package io.github.ivanrosw.fakerest.core.controller;
 
-import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
-import io.github.ivanrosw.fakerest.core.model.ControllerData;
 import io.github.ivanrosw.fakerest.core.model.ControllerMode;
-import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -11,14 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class FakeModifyController extends FakeController {
 
     protected static final String KEY_ALREADY_EXIST = "key [%s] already exist";
     protected static final String DATA_NOT_JSON = "data [%s] not json";
-
-    protected FakeModifyController(ControllerMode mode, ControllerData controllerData, ControllerConfig controllerConfig, JsonUtils jsonUtils) {
-        super(mode, controllerData, controllerConfig, jsonUtils);
-    }
 
     protected String readBody(HttpServletRequest request) throws IOException {
         return request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));

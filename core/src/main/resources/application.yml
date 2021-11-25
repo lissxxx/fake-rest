@@ -32,7 +32,12 @@ rest:
     -
       uri: '/test/{id}/{id2}'
       method: GET
-      answer: '[{"id":"1","data":"value"}]'
+    -
+      uri: '/test/{id}/{id2}'
+      method: POST
+      generateId: true
+      generateIdPatterns:
+        id: UUID
     -
       uri: '/test2/{id}'
       method: GET

@@ -2,21 +2,19 @@ package io.github.ivanrosw.fakerest.core.controller;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.ivanrosw.fakerest.core.model.ControllerData;
 import io.github.ivanrosw.fakerest.core.model.ControllerMode;
-import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
-import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetController extends FakeController {
-
-    public GetController(ControllerMode mode, ControllerData controllerData, ControllerConfig controllerConfig, JsonUtils jsonUtils) {
-        super(mode, controllerData, controllerConfig, jsonUtils);
-    }
 
     @Override
     public ResponseEntity<String> handle(HttpServletRequest request) {

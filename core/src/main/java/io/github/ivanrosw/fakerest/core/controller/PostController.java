@@ -1,20 +1,19 @@
 package io.github.ivanrosw.fakerest.core.controller;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.ivanrosw.fakerest.core.model.ControllerData;
-import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
-import io.github.ivanrosw.fakerest.core.model.ControllerMode;
-import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
+import io.github.ivanrosw.fakerest.core.model.GeneratorPattern;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostController extends FakeModifyController {
-
-    public PostController(ControllerMode mode, ControllerData controllerData, ControllerConfig controllerConfig, JsonUtils jsonUtils) {
-        super(mode, controllerData, controllerConfig, jsonUtils);
-    }
 
     @Override
     protected ResponseEntity<String> handleOne(HttpServletRequest request) {
@@ -37,6 +36,9 @@ public class PostController extends FakeModifyController {
         ObjectNode bodyJson = jsonUtils.toObjectNode(body);
 
         if (bodyJson != null && !bodyJson.isNull()) {
+            if (controllerConfig.isGenerateId()) {
+                addId(bodyJson);
+            }
             String key = controllerData.buildKey(bodyJson, controllerConfig.getIdParams());
 
             if (!controllerData.containsKey(controllerConfig.getUri(), key)) {
@@ -53,6 +55,14 @@ public class PostController extends FakeModifyController {
             result = new ResponseEntity<>(error.toString(), HttpStatus.BAD_REQUEST);
         }
         return result;
+    }
+
+    private void addId(ObjectNode data) {
+        Map<String, GeneratorPattern> generatorPatterns = controllerConfig.getGenerateIdPatterns();
+        controllerConfig.getIdParams().forEach(idParam -> {
+            GeneratorPattern pattern = generatorPatterns == null ? null : generatorPatterns.get(idParam);
+            jsonUtils.putString(data, idParam, generatorUtils.generateId(pattern));
+        });
     }
 
 }
