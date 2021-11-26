@@ -38,7 +38,7 @@ rest:
     -
       uri: '/test2/{id}'
       method: GET
-      answer: 123
+      answer: '{"id":"1","data":"value"}'
     -
       uri: '/test2/{id}'
       method: POST

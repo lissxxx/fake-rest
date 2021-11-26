@@ -30,6 +30,8 @@ import java.net.URISyntaxException;
 @AllArgsConstructor
 public class RouterController {
 
+    private static final String LOG_INFO = "Got router request \r\nMethod: [{}] \r\nUri: [{}]\r\nTo url:[{}] \r\nBody: [{}] \r\nHeaders: [{}]";
+
     private RouterConfig conf;
     private HttpUtils httpUtils;
     private RestClient restClient;
@@ -41,6 +43,8 @@ public class RouterController {
             URI uri = buildUri(request);
             String body = httpUtils.readBody(request);
             HttpHeaders headers = httpUtils.readHeaders(request);
+
+            if (log.isTraceEnabled()) log.trace(LOG_INFO, request.getMethod(), request.getRequestURI(), uri, body, headers);
 
             if (method != null) {
                 result = restClient.execute(method, uri, headers, body);

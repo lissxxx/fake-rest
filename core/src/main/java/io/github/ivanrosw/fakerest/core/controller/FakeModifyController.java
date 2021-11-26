@@ -19,14 +19,18 @@ import io.github.ivanrosw.fakerest.core.model.ControllerMode;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
 
+@Slf4j
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class FakeModifyController extends FakeController {
+
+    private static final String LOG_INFO = "Got request \r\nMethod: [{}] \r\nUri: [{}] \r\nBody: [{}]";
 
     @Override
     public ResponseEntity<String> handle(HttpServletRequest request) {
@@ -43,6 +47,8 @@ public abstract class FakeModifyController extends FakeController {
         ResponseEntity<String> result;
         try {
             String body = httpUtils.readBody(request);
+            if (log.isTraceEnabled()) log.trace(LOG_INFO, request.getMethod(), request.getRequestURI(), body);
+
             if (body != null && !body.isBlank()) {
                 result = new ResponseEntity<>(body, HttpStatus.OK);
             } else {

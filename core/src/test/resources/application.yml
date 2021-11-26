@@ -7,7 +7,7 @@ logging:
   level:
     root: INFO
     org.springframework: INFO
-    io.github.ivanrosw.fakerest: INFO
+    io.github.ivanrosw.fakerest: TRACE
 
 server:
   port: 8450

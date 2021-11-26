@@ -21,18 +21,24 @@ import io.github.ivanrosw.fakerest.core.model.ControllerMode;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+@Slf4j
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetController extends FakeController {
 
+    private static final String LOG_INFO = "Got request \r\nMethod: [{}] \r\nUri: [{}]";
+
     @Override
     public ResponseEntity<String> handle(HttpServletRequest request) {
+        if (log.isTraceEnabled()) log.trace(LOG_INFO, request.getMethod(), request.getRequestURI());
+
         ResponseEntity<String> result;
         if (mode == ControllerMode.COLLECTION_ALL) {
             result = handleAll();
