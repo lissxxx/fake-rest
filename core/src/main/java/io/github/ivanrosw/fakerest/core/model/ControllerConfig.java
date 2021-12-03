@@ -35,6 +35,8 @@ public class ControllerConfig {
 
     private String answer;
 
+    private long delayMs;
+
     private List<String> idParams;
 
     private boolean generateId;

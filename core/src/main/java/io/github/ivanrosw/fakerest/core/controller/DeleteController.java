@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 public class DeleteController extends FakeModifyController {
 
     @Override
-    protected ResponseEntity<String> handleOne(HttpServletRequest request) {
+    protected ResponseEntity<String> handleOne(HttpServletRequest request, String body) {
         ResponseEntity<String> result;
 
         String key = controllerData.buildKey(httpUtils.getUrlIds(request), controllerConfig.getIdParams());

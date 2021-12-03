@@ -33,32 +33,45 @@ public abstract class FakeModifyController extends FakeController {
     private static final String LOG_INFO = "Got request \r\nMethod: [{}] \r\nUri: [{}] \r\nBody: [{}]";
 
     @Override
-    public ResponseEntity<String> handle(HttpServletRequest request) {
-        ResponseEntity<String> result;
-        if (mode == ControllerMode.COLLECTION_ONE) {
-            result = handleOne(request);
-        } else {
-            result = returnBody(request);
-        }
-        return result;
-    }
+    public final ResponseEntity<String> handle(HttpServletRequest request) {
+        delay();
 
-    protected ResponseEntity<String> returnBody(HttpServletRequest request) {
-        ResponseEntity<String> result;
+        ResponseEntity<String> result = null;
+        String body = null;
         try {
-            String body = httpUtils.readBody(request);
-            if (log.isTraceEnabled()) log.trace(LOG_INFO, request.getMethod(), request.getRequestURI(), body);
-
-            if (body != null && !body.isBlank()) {
-                result = new ResponseEntity<>(body, HttpStatus.OK);
-            } else {
-                result = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+            body = httpUtils.readBody(request);
         } catch (Exception e) {
             result = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        if (log.isTraceEnabled()) log.trace(LOG_INFO, request.getMethod(), request.getRequestURI(), body);
+
+        if (result == null) {
+            result = processRequest(request, body);
+        }
+        return result;
+    }
+    
+    private ResponseEntity<String> processRequest(HttpServletRequest request, String body) {
+        ResponseEntity<String> result;
+        if (mode == ControllerMode.COLLECTION_ONE) {
+            result = handleOne(request, body);
+        } else {
+            result = returnAnswerOrBody(body);
+        }
         return result;
     }
 
-    protected abstract ResponseEntity<String> handleOne(HttpServletRequest request);
+    protected ResponseEntity<String> returnAnswerOrBody(String body) {
+        ResponseEntity<String> result;
+        if (controllerConfig.getAnswer() != null) {
+            result = new ResponseEntity<>(controllerConfig.getAnswer(), HttpStatus.OK);
+        }else if (body != null && !body.isEmpty()) {
+            result = new ResponseEntity<>(body, HttpStatus.OK);
+        } else {
+            result = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return result;
+    }
+
+    protected abstract ResponseEntity<String> handleOne(HttpServletRequest request, String body);
 }

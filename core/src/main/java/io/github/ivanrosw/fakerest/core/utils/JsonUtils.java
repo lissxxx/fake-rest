@@ -76,7 +76,7 @@ public class JsonUtils {
     }
 
     public void putString(ObjectNode json, String key, String value) {
-        if (json != null && key != null && !key.isBlank()) {
+        if (json != null && key != null && !key.isEmpty()) {
             json.put(key, value);
         } else {
             if (log.isTraceEnabled()) log.trace("Data [{}] with key [{}] not put to json [{}]", value, key, json);

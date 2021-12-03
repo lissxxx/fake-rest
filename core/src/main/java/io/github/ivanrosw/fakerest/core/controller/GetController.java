@@ -38,6 +38,7 @@ public class GetController extends FakeController {
     @Override
     public ResponseEntity<String> handle(HttpServletRequest request) {
         if (log.isTraceEnabled()) log.trace(LOG_INFO, request.getMethod(), request.getRequestURI());
+        delay();
 
         ResponseEntity<String> result;
         if (mode == ControllerMode.COLLECTION_ALL) {

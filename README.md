@@ -19,7 +19,7 @@ Start application
 ```
 java -jar FakeRest.jar
 ```
-And send request
+If using .yml from example - then send request
 ```
 curl http://localhost:8450/test2/1
 ```
@@ -36,6 +36,7 @@ Controllers configuration contains parameters:
 - Answer - need for init data in controller collection or specify static returning data
 - GenerateId - flag for POST method. Should generate id or should use from body request
 - GenerateIdPatterns - UUID, Number. Uses if generateId is true. Default: number.
+- DelayMs - time to delay answer
 
 Controller works on 2 modes:
 - Static - return specified data from 'answer' or request body what you send.
@@ -43,10 +44,11 @@ Controller works on 2 modes:
 
 Example static configuration:
 
-|Method           |Uri       |Real mapped Uri|Answer        |Function                                             |
-|-----------------|----------|-------------- |--------------|-----------------------------------------------------|
-|GET              |/test     |/test          |example       |Return data from 'answer'                            |
-|POST, PUT, DELETE|/test     |/test          |              |Return data from body or Bad request if body is empty|
+|Method                |Uri       |Real mapped Uri|Answer        |Function                                             |
+|----------------------|----------|-------------- |--------------|-----------------------------------------------------|
+|GET, POST, PUT, DELETE|/test     |/test          |example       |Return 'example'                                     |
+|GET, POST, PUT, DELETE|/test     |/test          |              |Return data from body or Bad request if body is empty|
+|GET                   |/test     |/test          |              |Return empty answer                                  |
 
 For collection mode should configure uri with id in brackets '{', '}'. Id param can have any name.
 

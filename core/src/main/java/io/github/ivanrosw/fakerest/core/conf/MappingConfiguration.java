@@ -85,7 +85,7 @@ public class MappingConfiguration {
         }
 
         for (ControllerConfig conf : controllers) {
-            if (conf.getUri() == null || conf.getUri().isBlank()) {
+            if (conf.getUri() == null || conf.getUri().isEmpty()) {
                 throw new ConfigException("Controller: Uri must be not blank");
             }
             if (conf.getMethod() == null) {
@@ -106,7 +106,7 @@ public class MappingConfiguration {
             routers = new ArrayList<>();
         }
         for (RouterConfig conf : routers) {
-            if (conf.getUri() == null || conf.getToUrl() == null || conf.getUri().isBlank() || conf.getToUrl().isBlank()) {
+            if (conf.getUri() == null || conf.getToUrl() == null || conf.getUri().isEmpty() || conf.getToUrl().isEmpty()) {
                 throw new ConfigException("Router: Uri and toUrl must be not blank");
             }
             if (conf.getMethod() == null) {
