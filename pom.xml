@@ -13,7 +13,7 @@
 	<groupId>io.github.ivanrosw</groupId>
 	<artifactId>fakerest</artifactId>
 	<name>fakerest</name>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 
 	<properties>
 		<java.version>8</java.version>
@@ -124,7 +124,7 @@
 					</properties>
 					<licenseSets>
 						<licenseSet>
-							<header>license/LICENSE_HEADER</header>
+							<header>LICENSE_HEADER</header>
 							<excludes>
 								<exclude>**/README</exclude>
 								<exclude>**/LICENSE</exclude>
@@ -136,6 +136,25 @@
 						</licenseSet>
 					</licenseSets>
 				</configuration>
+			</plugin>
+			<!--Copy License-->
+			<plugin>
+				<groupId>com.coderplus.maven.plugins</groupId>
+				<artifactId>copy-rename-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>copy-file</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<sourceFile>LICENSE</sourceFile>
+							<destinationFile>appbuild/target/LICENSE</destinationFile>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
