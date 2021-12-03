@@ -24,10 +24,12 @@ import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
 
+@Slf4j
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class FakeController {
@@ -47,4 +49,15 @@ public abstract class FakeController {
     protected GeneratorUtils generatorUtils;
 
     public abstract ResponseEntity<String> handle(HttpServletRequest request);
+
+    protected void delay() {
+        if (controllerConfig.getDelayMs() > 0) {
+            try {
+                Thread.sleep(controllerConfig.getDelayMs());
+            } catch (Exception e) {
+                log.error("Interrupt error", e);
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
 }

@@ -60,6 +60,22 @@ rest:
       uri: '/test3'
       method: GET
       answer: 'expected answer'
+    -
+      uri: '/test3'
+      method: POST
+      answer: 'expected answer2'
+    -
+      uri: '/test3'
+      method: PUT
+      answer: 'expected answer2'
+    -
+      uri: '/test3'
+      method: DELETE
+      answer: 'expected answer2'
+    -
+      uri: '/test4'
+      method: GET
+      delayMs: 10
 
   routers:
     -
@@ -70,3 +86,7 @@ rest:
       uri: '/test'
       toUrl: 'http://localhost:8450/test/'
       method: POST
+    -
+      uri: '/test5'
+      toUrl: 'http://localhost:8451/badUrl'
+      method: GET

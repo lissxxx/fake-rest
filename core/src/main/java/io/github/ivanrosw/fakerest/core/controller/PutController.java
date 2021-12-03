@@ -30,17 +30,12 @@ import java.util.Map;
 public class PutController extends FakeModifyController {
 
     @Override
-    protected ResponseEntity<String> handleOne(HttpServletRequest request) {
+    protected ResponseEntity<String> handleOne(HttpServletRequest request, String body) {
         ResponseEntity<String> result;
-        try {
-            String body = httpUtils.readBody(request);
-            if (body != null && !body.isBlank()) {
-                result = updateOne(request, body);
-            } else {
-                result = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            result = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (body != null && !body.isEmpty()) {
+            result = updateOne(request, body);
+        } else {
+            result = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return result;
     }

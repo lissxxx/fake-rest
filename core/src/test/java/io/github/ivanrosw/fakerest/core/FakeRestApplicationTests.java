@@ -24,10 +24,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,8 +45,10 @@ class FakeRestApplicationTests {
 	private static final String TEST_CONTROLLER_URI = "/test/";
 	private static final String TEST_ROUTER_URI = "/test";
 	private static final String TEST_CONTROLLER2_URI = "/test2";
-	private static final String TEST_CONTROLLER3_URI_POST = "/test3/";
-	private static final String TEST_CONTROLLER3_URI_GET = "/test3";
+	private static final String TEST_CONTROLLER3_URI_MODIFY = "/test3/";
+	private static final String TEST_CONTROLLER3_URI = "/test3";
+	private static final String TEST_CONTROLLER4_URI = "/test4";
+	private static final String TEST_CONTROLLER5_URI = "/test5";
 
 	@LocalServerPort
 	private int port;
@@ -62,6 +66,8 @@ class FakeRestApplicationTests {
 
 		testCollectionControllersAndRouters();
 		testStaticControllers();
+		testDelay();
+		testRouterTimeout();
 	}
 
 	private void testCollectionControllersAndRouters() throws Exception{
@@ -130,11 +136,11 @@ class FakeRestApplicationTests {
 
 		//CREATE WITHOUT GENERATE ID OK
 		jsonUtils.putString(expectedJson, ID_PARAM, "1");
-		createOne(TEST_CONTROLLER3_URI_POST, expectedJson);
+		createOne(TEST_CONTROLLER3_URI_MODIFY, expectedJson);
 		assertThat(jsonUtils.getString(expectedJson, ID_PARAM)).isEqualTo("1");
 
 		//CREATE WITHOUT ID ALREADY EXIST
-		assertThat(restClient.execute(HttpMethod.POST, new URI(baseUrl + TEST_CONTROLLER3_URI_POST), null, expectedJson.toString()).getStatusCode())
+		assertThat(restClient.execute(HttpMethod.POST, new URI(baseUrl + TEST_CONTROLLER3_URI_MODIFY), null, expectedJson.toString()).getStatusCode())
 				.isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
@@ -164,34 +170,57 @@ class FakeRestApplicationTests {
 
 	private void testStaticControllers() throws Exception {
 		String expectedAnswer = "expected answer";
+		String expectedAnswer2 = "expected answer2";
 
-		//GET
+		//GET WITHOUT ANSWER
 		String actualAnswer = restClient.execute(HttpMethod.GET, new URI(baseUrl + TEST_CONTROLLER2_URI), null, null).getBody();
 		assertThat(actualAnswer).isNull();
 
-		actualAnswer = restClient.execute(HttpMethod.GET, new URI(baseUrl + TEST_CONTROLLER3_URI_GET), null, null).getBody();
+		//GET WITH ANSWER
+		actualAnswer = restClient.execute(HttpMethod.GET, new URI(baseUrl + TEST_CONTROLLER3_URI), null, null).getBody();
 		assertThat(actualAnswer).isEqualTo(expectedAnswer);
 
-		//POST
+		//POST WITHOUT ANSWER
 		assertThat(restClient.execute(HttpMethod.POST, new URI(baseUrl + TEST_CONTROLLER2_URI), null, expectedAnswer).getBody()).isEqualTo(expectedAnswer);
+
+		//POST WITH ANSWER
+		assertThat(restClient.execute(HttpMethod.POST, new URI(baseUrl + TEST_CONTROLLER3_URI), null, expectedAnswer).getBody()).isEqualTo(expectedAnswer2);
 
 		//POST BAD DATA
 		assertThat(restClient.execute(HttpMethod.POST, new URI(baseUrl + TEST_CONTROLLER2_URI), null, null).getStatusCode())
 				.isEqualTo(HttpStatus.BAD_REQUEST);
 
-		//PUT
+		//PUT WITHOUT ANSWER
 		assertThat(restClient.execute(HttpMethod.PUT, new URI(baseUrl + TEST_CONTROLLER2_URI), null, expectedAnswer).getBody()).isEqualTo(expectedAnswer);
+
+		//PUT WITH ANSWER
+		assertThat(restClient.execute(HttpMethod.PUT, new URI(baseUrl + TEST_CONTROLLER3_URI), null, expectedAnswer).getBody()).isEqualTo(expectedAnswer2);
 
 		//PUT BAD DATA
 		assertThat(restClient.execute(HttpMethod.PUT, new URI(baseUrl + TEST_CONTROLLER2_URI), null, null).getStatusCode())
 				.isEqualTo(HttpStatus.BAD_REQUEST);
 
-		//DELETE
+		//DELETE WITHOUT ANSWER
 		assertThat(restClient.execute(HttpMethod.DELETE, new URI(baseUrl + TEST_CONTROLLER2_URI), null, expectedAnswer).getBody()).isEqualTo(expectedAnswer);
+
+		//DELETE WITH ANSWER
+		assertThat(restClient.execute(HttpMethod.DELETE, new URI(baseUrl + TEST_CONTROLLER3_URI), null, expectedAnswer).getBody()).isEqualTo(expectedAnswer2);
 
 		//DELETE BAD DATA
 		assertThat(restClient.execute(HttpMethod.DELETE, new URI(baseUrl + TEST_CONTROLLER2_URI), null, null).getStatusCode())
 				.isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	private void testDelay() throws URISyntaxException {
+		long now = System.currentTimeMillis();
+		restClient.execute(HttpMethod.GET, new URI(baseUrl + TEST_CONTROLLER4_URI), null, null).getBody();
+		long processMs = System.currentTimeMillis() - now;
+		assertThat(processMs).isGreaterThanOrEqualTo(10);
+	}
+
+	private void testRouterTimeout() throws URISyntaxException {
+		ResponseEntity<String> response = restClient.execute(HttpMethod.GET, new URI(baseUrl + TEST_CONTROLLER5_URI), null, null);
+		assertThat(response.getStatusCodeValue()).isEqualTo(408);
 	}
 
 }
