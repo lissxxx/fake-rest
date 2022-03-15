@@ -13,7 +13,7 @@
 	<groupId>io.github.ivanrosw</groupId>
 	<artifactId>fakerest</artifactId>
 	<name>fakerest</name>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 
 	<properties>
 		<java.version>8</java.version>
@@ -22,6 +22,7 @@
 	<modules>
 		<module>core</module>
 		<module>appbuild</module>
+		<module>api</module>
 	</modules>
 
 	<dependencies>
@@ -119,19 +120,35 @@
 				<version>4.1</version>
 				<configuration>
 					<properties>
-						<owner>Ivan Rosinskii</owner>
-						<year>2021</year>
+						<owner-ivan>Ivan Rosinskii</owner-ivan>
+						<owner-lissntrixxx>Lissntrixxx</owner-lissntrixxx>
+						<year>2022</year>
 					</properties>
 					<licenseSets>
 						<licenseSet>
-							<header>LICENSE_HEADER</header>
+							<header>lic/HEADER_IVAN</header>
 							<excludes>
 								<exclude>**/README</exclude>
 								<exclude>**/LICENSE</exclude>
-								<exclude>**/LICENSE_HEADER</exclude>
+								<exclude>**/lic/**</exclude>
 								<exclude>**/pom.xml</exclude>
 								<exclude>**/src/test/resources/**</exclude>
 								<exclude>**/src/main/resources/**</exclude>
+								<exclude>**/ui/**</exclude>
+							</excludes>
+						</licenseSet>
+						<licenseSet>
+							<header>lic/HEADER_LISSNTRIXXX</header>
+							<excludes>
+								<exclude>**/README</exclude>
+								<exclude>**/LICENSE</exclude>
+								<exclude>**/lic/**</exclude>
+								<exclude>**/pom.xml</exclude>
+								<exclude>**/src/test/resources/**</exclude>
+								<exclude>**/src/main/resources/**</exclude>
+								<exclude>**/core/**</exclude>
+								<exclude>**/appbuild/**</exclude>
+								<exclude>**/api/**</exclude>
 							</excludes>
 						</licenseSet>
 					</licenseSets>
