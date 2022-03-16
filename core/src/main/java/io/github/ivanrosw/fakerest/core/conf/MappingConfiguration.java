@@ -39,7 +39,7 @@ public class MappingConfiguration {
     private List<RouterConfig> routers;
 
     @Autowired
-    private ControllerConfigurator configurator;
+    private MappingConfigurator configurator;
 
     @PostConstruct
     private void init() throws ConfigException {

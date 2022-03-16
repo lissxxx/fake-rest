@@ -28,7 +28,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class ControllerConfigurator {
+public class MappingConfigurator {
 
     private Map<RequestMethod, List<String>> methodsUrls;
 
