@@ -35,7 +35,7 @@ public class GeneratorUtils {
         if (pattern == GeneratorPattern.UUID) {
             result = generateUUID();
         } else {
-            result = generateNumber();
+            result = generateSequence();
         }
         return result;
     }
@@ -44,7 +44,7 @@ public class GeneratorUtils {
         return UUID.randomUUID().toString();
     }
 
-    private String generateNumber() {
+    private String generateSequence() {
         return String.valueOf(atomicInteger.incrementAndGet());
     }
 }

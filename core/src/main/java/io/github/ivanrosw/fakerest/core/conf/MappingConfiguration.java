@@ -69,8 +69,8 @@ public class MappingConfiguration {
     @PostConstruct
     private void init() throws ConfigException {
         beforeInitCheck();
-        initRest();
-        initRedirections();
+        initControllers();
+        initRouters();
     }
 
     private void beforeInitCheck() throws ConfigException {
@@ -120,7 +120,7 @@ public class MappingConfiguration {
         }
     }
 
-    private void initRest() throws ConfigException {
+    private void initControllers() throws ConfigException {
         for (ControllerConfig conf : controllers) {
             switch (conf.getMethod()) {
                 case GET:
@@ -346,7 +346,7 @@ public class MappingConfiguration {
         controllerData.putData(controllerConfig.getUri(), key, data);
     }
 
-    private void initRedirections() throws ConfigException {
+    private void initRouters() throws ConfigException {
         for (RouterConfig conf : routers) {
             RequestMappingInfo routerInfo = RequestMappingInfo
                     .paths(conf.getUri())
