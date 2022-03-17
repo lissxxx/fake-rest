@@ -86,9 +86,37 @@ public class JsonUtils {
         return result;
     }
 
+    public ObjectNode getJson(ObjectNode json, String key) {
+        return getJsonObject(json, key);
+    }
+
+    public ArrayNode getArray(ObjectNode json, String key) {
+        return getJsonObject(json, key);
+    }
+
+    private <T> T getJsonObject(ObjectNode json, String key) {
+        T result = null;
+        if (json != null && json.has(key)) {
+            try {
+                result = (T) json.get(key);
+            } catch (Exception e) {
+                log.error("Error while getting json", e);
+            }
+        }
+        return result;
+    }
+
     public void putString(ObjectNode json, String key, String value) {
         if (json != null && key != null && !key.isEmpty()) {
             json.put(key, value);
+        } else {
+            if (log.isTraceEnabled()) log.trace("Data [{}] with key [{}] not put to json [{}]", value, key, json);
+        }
+    }
+
+    public void putJson(ObjectNode json, String key, JsonNode value) {
+        if (json != null && key != null && !key.isEmpty()) {
+            json.replace(key, value);
         } else {
             if (log.isTraceEnabled()) log.trace("Data [{}] with key [{}] not put to json [{}]", value, key, json);
         }

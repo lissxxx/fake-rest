@@ -1,8 +1,11 @@
 package io.github.ivanrosw.fakerest.core.conf;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.github.ivanrosw.fakerest.core.model.BaseUriConfig;
 import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
 import io.github.ivanrosw.fakerest.core.model.RouterConfig;
 import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
@@ -22,6 +25,16 @@ public class YamlConfigurator {
 
     private static final String YAML_NAME = "application.yml";
 
+    private static final String REST_PARAM = "rest";
+    private static final String CONTROLLERS_PARAM = "controllers";
+    private static final String ROUTERS_PARAM = "routers";
+    private static final String ID_PARAM = "id";
+    private static final String URI_PARAM = "uri";
+    private static final String METHOD_PARAM = "method";
+
+    private static final String CONTROLLER_PARAM = "controller";
+    private static final String ROUTER_PARAM = "router";
+
     private ObjectMapper mapper;
 
     @Autowired
@@ -32,21 +45,90 @@ public class YamlConfigurator {
         mapper = new ObjectMapper(new YAMLFactory());
     }
 
+    //CONTROLLER
+
     void addController(ControllerConfig conf) {
-        //TODO
+        addConfig(conf, CONTROLLERS_PARAM);
     }
 
     void deleteController(ControllerConfig conf) {
-        //TODO
+        deleteConfig(conf, CONTROLLERS_PARAM);
     }
 
+    //ROUTER
+
     void addRouter(RouterConfig conf) {
-        //TODO
+        addConfig(conf, ROUTERS_PARAM);
     }
 
     void deleteRouter(RouterConfig conf) {
-        //TODO
+        deleteConfig(conf, ROUTERS_PARAM);
     }
+
+    //GENERALE
+
+    private void addConfig(BaseUriConfig conf, String keyParam) {
+        ObjectNode yaml = getConfig();
+        ArrayNode configs = getControllersOrRouters(yaml, keyParam);
+        ObjectNode jsonConf = jsonUtils.toObjectNode(conf);
+        jsonConf.remove(ID_PARAM);
+        configs.add(jsonConf);
+        writeConfig(yaml);
+        log.info("Added {} to config. Method: {}, uri: {}", conf instanceof ControllerConfig ? CONTROLLER_PARAM : ROUTER_PARAM,
+                                                            conf.getMethod(),
+                                                            conf.getUri());
+    }
+
+    private void deleteConfig(BaseUriConfig conf, String keyParam) {
+        ObjectNode yaml = getConfig();
+        ArrayNode configs = getControllersOrRouters(yaml, keyParam);
+
+        boolean isDeleted = false;
+        for (int i = 0; i < configs.size(); i++) {
+            JsonNode configsConf = configs.get(i);
+            String configsConfUri = jsonUtils.getString(configsConf, URI_PARAM);
+            String configsConfMethod = jsonUtils.getString(configsConf, METHOD_PARAM);
+
+            if (conf.getMethod().toString().equals(configsConfMethod) && conf.getUri().equals(configsConfUri)) {
+                configs.remove(i);
+                isDeleted = true;
+                break;
+            }
+        }
+
+        if (isDeleted) {
+            writeConfig(yaml);
+            log.info("Deleted {} from config. Method: {}, uri: {}", conf instanceof ControllerConfig ? CONTROLLER_PARAM : ROUTER_PARAM,
+                                                                    conf.getMethod(),
+                                                                    conf.getUri());
+        }
+    }
+
+    private ArrayNode getControllersOrRouters(ObjectNode yaml, String key) {
+        ObjectNode rest = getRest(yaml);
+
+        ArrayNode value;
+        if (rest.has(key)) {
+            value = jsonUtils.getArray(yaml, key);
+        } else {
+            value = jsonUtils.createArray();
+            jsonUtils.putJson(yaml, key, value);
+        }
+        return value;
+    }
+
+    private ObjectNode getRest(ObjectNode yaml) {
+        ObjectNode rest;
+        if (yaml.has(REST_PARAM)) {
+            rest = jsonUtils.getJson(yaml, REST_PARAM);
+        } else {
+            rest = jsonUtils.createJson();
+            jsonUtils.putJson(yaml, REST_PARAM, rest);
+        }
+        return rest;
+    }
+
+    //FILE
 
     private ObjectNode getConfig() {
         ObjectNode conf;
@@ -57,14 +139,6 @@ public class YamlConfigurator {
             log.warn("Error while parse configuration file. Creating new one");
         }
         return conf;
-    }
-
-    private void writeConfig(ObjectNode conf) {
-        try {
-            mapper.writer().writeValue(getConfigFile(), conf);
-        } catch (Exception e) {
-            log.error("Error while writing config");
-        }
     }
 
     private File getConfigFile() throws IOException {
@@ -78,5 +152,13 @@ public class YamlConfigurator {
         String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         String decodedPath = URLDecoder.decode(path, "UTF-8");
         return decodedPath + YAML_NAME;
+    }
+
+    private void writeConfig(ObjectNode conf) {
+        try {
+            mapper.writer().writeValue(getConfigFile(), conf);
+        } catch (Exception e) {
+            log.error("Error while writing config");
+        }
     }
 }

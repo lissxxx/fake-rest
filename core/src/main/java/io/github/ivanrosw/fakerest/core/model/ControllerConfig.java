@@ -18,7 +18,6 @@ package io.github.ivanrosw.fakerest.core.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +27,7 @@ import java.util.Map;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ControllerConfig implements Copyable<ControllerConfig> {
-
-    private String id;
-
-    private String uri;
-
-    private RequestMethod method;
+public class ControllerConfig extends BaseUriConfig implements Copyable<ControllerConfig> {
 
     private String answer;
 
@@ -54,9 +47,9 @@ public class ControllerConfig implements Copyable<ControllerConfig> {
     @Override
     public ControllerConfig copy() {
         ControllerConfig copy = new ControllerConfig();
-        copy.setId(this.id);
-        copy.setUri(this.uri);
-        copy.setMethod(this.method);
+        copy.setId(this.getId());
+        copy.setUri(this.getUri());
+        copy.setMethod(this.getMethod());
         copy.setAnswer(this.answer);
         copy.setDelayMs(this.delayMs);
         copy.setIdParams(new ArrayList<>(this.idParams));
