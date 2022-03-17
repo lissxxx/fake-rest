@@ -1,24 +1,9 @@
-/*
- * Copyright (C) 2021 Ivan Rosinskii
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.github.ivanrosw.fakerest.core.controller;
 
 import io.github.ivanrosw.fakerest.core.model.ControllerData;
 import io.github.ivanrosw.fakerest.core.model.ControllerMode;
 import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
-import io.github.ivanrosw.fakerest.core.utils.GeneratorUtils;
+import io.github.ivanrosw.fakerest.core.utils.IdGenerator;
 import io.github.ivanrosw.fakerest.core.utils.HttpUtils;
 import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
 import lombok.AccessLevel;
@@ -46,7 +31,7 @@ public abstract class FakeController {
 
     protected JsonUtils jsonUtils;
     protected HttpUtils httpUtils;
-    protected GeneratorUtils generatorUtils;
+    protected IdGenerator idGenerator;
 
     public abstract ResponseEntity<String> handle(HttpServletRequest request);
 

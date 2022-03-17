@@ -13,7 +13,7 @@
 	<groupId>io.github.ivanrosw</groupId>
 	<artifactId>fakerest</artifactId>
 	<name>fakerest</name>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 
 	<properties>
 		<java.version>8</java.version>
@@ -22,6 +22,7 @@
 	<modules>
 		<module>core</module>
 		<module>appbuild</module>
+		<module>api</module>
 	</modules>
 
 	<dependencies>
@@ -56,36 +57,26 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+			<version>2.12.5</version>
+		</dependency>
 	</dependencies>
-
-	<profiles>
-		<profile>
-			<id>clean</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<build>
-				<!--Exclude resources-->
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<excludes>
-							<exclude>*</exclude>
-						</excludes>
-					</resource>
-					<resource>
-						<directory>src/test/resources</directory>
-						<excludes>
-							<exclude>*</exclude>
-						</excludes>
-					</resource>
-				</resources>
-			</build>
-		</profile>
-	</profiles>
 
 	<build>
 		<plugins>
+			<!--Exclude configs-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<excludes>
+						<exclude>*.yml</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
 			<!--Sonar-->
 			<plugin>
 				<groupId>org.sonarsource.scanner.maven</groupId>
@@ -112,32 +103,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--Generate license-->
-			<plugin>
-				<groupId>com.mycila</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<version>4.1</version>
-				<configuration>
-					<properties>
-						<owner>Ivan Rosinskii</owner>
-						<year>2021</year>
-					</properties>
-					<licenseSets>
-						<licenseSet>
-							<header>LICENSE_HEADER</header>
-							<excludes>
-								<exclude>**/README</exclude>
-								<exclude>**/LICENSE</exclude>
-								<exclude>**/LICENSE_HEADER</exclude>
-								<exclude>**/pom.xml</exclude>
-								<exclude>**/src/test/resources/**</exclude>
-								<exclude>**/src/main/resources/**</exclude>
-							</excludes>
-						</licenseSet>
-					</licenseSets>
-				</configuration>
-			</plugin>
-			<!--Copy License-->
+			<!--Copy License to appbuild-->
 			<plugin>
 				<groupId>com.coderplus.maven.plugins</groupId>
 				<artifactId>copy-rename-maven-plugin</artifactId>
