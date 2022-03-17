@@ -55,6 +55,10 @@ public class YamlConfigurator {
         deleteConfig(conf, CONTROLLERS_PARAM);
     }
 
+    boolean isControllerExist(ControllerConfig conf) {
+        return isConfigExist(conf, CONTROLLERS_PARAM);
+    }
+
     //ROUTER
 
     void addRouter(RouterConfig conf) {
@@ -63,6 +67,10 @@ public class YamlConfigurator {
 
     void deleteRouter(RouterConfig conf) {
         deleteConfig(conf, ROUTERS_PARAM);
+    }
+
+    boolean isRouterExist(RouterConfig conf) {
+        return isConfigExist(conf, ROUTERS_PARAM);
     }
 
     //GENERALE
@@ -104,15 +112,34 @@ public class YamlConfigurator {
         }
     }
 
+    private boolean isConfigExist(BaseUriConfig conf, String keyParam) {
+        ObjectNode yaml = getConfig();
+        ArrayNode configs = getControllersOrRouters(yaml, keyParam);
+
+        boolean result = false;
+        for (int i = 0; i < configs.size(); i++) {
+            JsonNode configsConf = configs.get(i);
+            String configsConfUri = jsonUtils.getString(configsConf, URI_PARAM);
+            String configsConfMethod = jsonUtils.getString(configsConf, METHOD_PARAM);
+
+            if (conf.getMethod().toString().equals(configsConfMethod) && conf.getUri().equals(configsConfUri)) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
     private ArrayNode getControllersOrRouters(ObjectNode yaml, String key) {
         ObjectNode rest = getRest(yaml);
 
         ArrayNode value;
         if (rest.has(key)) {
-            value = jsonUtils.getArray(yaml, key);
+            value = jsonUtils.getArray(rest, key);
         } else {
             value = jsonUtils.createArray();
-            jsonUtils.putJson(yaml, key, value);
+            jsonUtils.putJson(rest, key, value);
         }
         return value;
     }
@@ -136,29 +163,32 @@ public class YamlConfigurator {
             conf = mapper.readValue(getConfigFile(), ObjectNode.class);
         } catch (Exception e) {
             conf = jsonUtils.createJson();
-            log.warn("Error while parse configuration file. Creating new one");
+            log.warn("Error while parse configuration file. Creating new one", e);
         }
         return conf;
     }
 
     private File getConfigFile() throws IOException {
         String yamlPath = getYamlPath();
+        log.info("Getting file {}", yamlPath);
         File confFile = new File(yamlPath);
         if (!confFile.exists()) confFile.createNewFile();
         return confFile;
     }
 
     private String getYamlPath() throws UnsupportedEncodingException {
-        String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        String path = System.getProperty("user.dir");
         String decodedPath = URLDecoder.decode(path, "UTF-8");
-        return decodedPath + YAML_NAME;
+        return decodedPath + File.separator + YAML_NAME;
     }
 
     private void writeConfig(ObjectNode conf) {
         try {
+            File file = getConfigFile();
+            log.info("Writing file {}", file.getAbsolutePath());
             mapper.writer().writeValue(getConfigFile(), conf);
         } catch (Exception e) {
-            log.error("Error while writing config");
+            log.error("Error while writing config", e);
         }
     }
 }

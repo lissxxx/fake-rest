@@ -18,6 +18,7 @@ package io.github.ivanrosw.fakerest.core.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import java.util.Map;
 @Getter
 @Setter
 @AllArgsConstructor
+@ToString
 public class ControllerConfig extends BaseUriConfig implements Copyable<ControllerConfig> {
 
     private String answer;

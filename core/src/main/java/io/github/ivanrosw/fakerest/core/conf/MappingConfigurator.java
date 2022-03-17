@@ -3,6 +3,7 @@ package io.github.ivanrosw.fakerest.core.conf;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.ivanrosw.fakerest.core.FakeRestApplication;
 import io.github.ivanrosw.fakerest.core.controller.*;
 import io.github.ivanrosw.fakerest.core.model.*;
 import io.github.ivanrosw.fakerest.core.utils.IdGenerator;
@@ -86,6 +87,9 @@ public class MappingConfigurator {
 
         conf.setId(controllersIdGenerator.generateId(GeneratorPattern.SEQUENCE));
         controllers.put(conf.getId(), conf);
+        if (!yamlConfigurator.isControllerExist(conf)) {
+            yamlConfigurator.addController(conf);
+        }
     }
 
     private void beforeInitControllerCheck(ControllerConfig conf) throws ConfigException {
@@ -98,7 +102,7 @@ public class MappingConfigurator {
 
         List<String> urls = methodsUrls.computeIfAbsent(conf.getMethod(), key -> new ArrayList<>());
         if (urls.contains(conf.getUri())) {
-            throw new ConfigException(String.format("Duplicated urls: %s", conf.getUri()));
+            throw new ConfigException(String.format("Router: Duplicated urls: %s", conf.getUri()));
         }
     }
 
@@ -138,7 +142,7 @@ public class MappingConfigurator {
                     .build();
             registerController(getOneMappingInfo, getOneController);
 
-            loadAnswerData(conf);
+            loadCollectionAnswerData(conf);
         } else {
             RequestMappingInfo getStaticMappingInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -177,7 +181,7 @@ public class MappingConfigurator {
                     .build();
             registerController(createOneInfo, createOneController);
 
-            loadAnswerData(conf);
+            loadCollectionAnswerData(conf);
         } else {
             RequestMappingInfo createStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -215,7 +219,7 @@ public class MappingConfigurator {
                     .build();
             registerController(updateOneInfo, updateOneController);
 
-            loadAnswerData(conf);
+            loadCollectionAnswerData(conf);
         } else {
             RequestMappingInfo updateStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -253,7 +257,7 @@ public class MappingConfigurator {
                     .build();
             registerController(deleteOneInfo, deleteOneController);
 
-            loadAnswerData(conf);
+            loadCollectionAnswerData(conf);
         } else {
             RequestMappingInfo deleteStaticInfo = RequestMappingInfo
                     .paths(conf.getUri())
@@ -285,8 +289,8 @@ public class MappingConfigurator {
         }
     }
 
-    private void loadAnswerData(ControllerConfig conf) {
-        if (conf.getAnswer() != null) {
+    private void loadCollectionAnswerData(ControllerConfig conf) {
+        if (conf.getAnswer() != null && (conf.getAnswer().contains("{") || conf.getAnswer().contains("["))) {
             JsonNode answer = jsonUtils.toJsonNode(conf.getAnswer());
 
             if (answer instanceof ArrayNode) {
@@ -305,16 +309,12 @@ public class MappingConfigurator {
         controllerData.putData(controllerConfig.getUri(), key, data);
     }
 
-    public void updateController(ControllerConfig conf) {
-        //TODO
-        //update in yaml
-        //restart
-    }
-
-    public void deleteController(ControllerConfig conf) {
-        //TODO
-        //delete from yaml
-        //restart
+    public void deleteController(ControllerConfig conf) throws ConfigException {
+        if (!yamlConfigurator.isControllerExist(conf)) {
+            throw new ConfigException("Controller not exist in yaml configuration");
+        }
+        yamlConfigurator.deleteController(conf);
+        FakeRestApplication.restart();
     }
 
     //ROUTER
@@ -339,6 +339,9 @@ public class MappingConfigurator {
 
         conf.setId(routersIdGenerator.generateId(GeneratorPattern.SEQUENCE));
         routers.put(conf.getId(), conf);
+        if (!yamlConfigurator.isRouterExist(conf)) {
+            yamlConfigurator.addRouter(conf);
+        }
     }
 
     private void beforeInitRouterCheck(RouterConfig conf) throws ConfigException {
@@ -351,20 +354,16 @@ public class MappingConfigurator {
 
         List<String> urls = methodsUrls.computeIfAbsent(conf.getMethod(), key -> new ArrayList<>());
         if (urls.contains(conf.getUri())) {
-            throw new ConfigException(String.format("Duplicated urls: %s", conf.getUri()));
+            throw new ConfigException(String.format("Router: Duplicated urls: %s", conf.getUri()));
         }
     }
 
-    public void updateRouter(RouterConfig conf) {
-        //TODO
-        //update in yaml
-        //restart
-    }
-
-    public void deleteRouter(RouterConfig conf) {
-        //TODO
-        //delete from yaml
-        //restart
+    public void deleteRouter(RouterConfig conf) throws ConfigException {
+        if (!yamlConfigurator.isRouterExist(conf)) {
+            throw new ConfigException("Router not exist in yaml configuration");
+        }
+        yamlConfigurator.deleteRouter(conf);
+        FakeRestApplication.restart();
     }
 
     //UTILS
