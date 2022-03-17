@@ -171,9 +171,7 @@ public class YamlConfigurator {
     private File getConfigFile() throws IOException {
         String yamlPath = getYamlPath();
         log.info("Getting file {}", yamlPath);
-        File confFile = new File(yamlPath);
-        if (!confFile.exists()) confFile.createNewFile();
-        return confFile;
+        return new File(yamlPath);
     }
 
     private String getYamlPath() throws UnsupportedEncodingException {
