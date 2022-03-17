@@ -16,17 +16,15 @@
 package io.github.ivanrosw.fakerest.core.utils;
 
 import io.github.ivanrosw.fakerest.core.model.GeneratorPattern;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Component
-public class GeneratorUtils {
+public class IdGenerator {
 
     private AtomicInteger atomicInteger;
 
-    public GeneratorUtils() {
+    public IdGenerator() {
         atomicInteger = new AtomicInteger();
     }
 

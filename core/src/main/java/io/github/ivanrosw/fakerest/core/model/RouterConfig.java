@@ -25,11 +25,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouterConfig {
+public class RouterConfig implements Copyable<RouterConfig> {
+
+    private String id;
 
     private String uri;
 
     private RequestMethod method;
 
     private String toUrl;
+
+    @Override
+    public RouterConfig copy() {
+        RouterConfig copy = new RouterConfig();
+        copy.setId(this.id);
+        copy.setUri(this.uri);
+        copy.setMethod(method);
+        copy.setToUrl(toUrl);
+        return copy;
+    }
 }

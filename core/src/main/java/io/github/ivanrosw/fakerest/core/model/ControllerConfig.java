@@ -21,13 +21,16 @@ import lombok.Setter;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class ControllerConfig {
+public class ControllerConfig implements Copyable<ControllerConfig> {
+
+    private String id;
 
     private String uri;
 
@@ -45,13 +48,20 @@ public class ControllerConfig {
 
     public ControllerConfig() {
         idParams = new ArrayList<>();
+        generateIdPatterns = new HashMap<>();
     }
 
-    public List<String> getIdParams() {
-        if (idParams.isEmpty()) {
-            idParams.add("id");
-        }
-
-        return idParams;
+    @Override
+    public ControllerConfig copy() {
+        ControllerConfig copy = new ControllerConfig();
+        copy.setId(this.id);
+        copy.setUri(this.uri);
+        copy.setMethod(this.method);
+        copy.setAnswer(this.answer);
+        copy.setDelayMs(this.delayMs);
+        copy.setIdParams(new ArrayList<>(this.idParams));
+        copy.setGenerateId(this.generateId);
+        copy.setGenerateIdPatterns(new HashMap<>(this.generateIdPatterns));
+        return copy;
     }
 }

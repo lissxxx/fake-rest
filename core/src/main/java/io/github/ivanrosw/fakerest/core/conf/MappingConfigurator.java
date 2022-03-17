@@ -4,11 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.ivanrosw.fakerest.core.controller.*;
-import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
-import io.github.ivanrosw.fakerest.core.model.ControllerData;
-import io.github.ivanrosw.fakerest.core.model.ControllerMode;
-import io.github.ivanrosw.fakerest.core.model.RouterConfig;
-import io.github.ivanrosw.fakerest.core.utils.GeneratorUtils;
+import io.github.ivanrosw.fakerest.core.model.*;
+import io.github.ivanrosw.fakerest.core.utils.IdGenerator;
 import io.github.ivanrosw.fakerest.core.utils.HttpUtils;
 import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
 import io.github.ivanrosw.fakerest.core.utils.RestClient;
@@ -21,16 +18,17 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
 public class MappingConfigurator {
 
     private Map<RequestMethod, List<String>> methodsUrls;
+    private Map<String, ControllerConfig> controllers;
+    private Map<String, RouterConfig> routers;
+    private IdGenerator controllersIdGenerator;
+    private IdGenerator routersIdGenerator;
 
     @Autowired
     private RequestMappingHandlerMapping handlerMapping;
@@ -42,32 +40,35 @@ public class MappingConfigurator {
     @Autowired
     private HttpUtils httpUtils;
     @Autowired
-    private GeneratorUtils generatorUtils;
-    @Autowired
     private RestClient restClient;
 
     @PostConstruct
     private void init() {
         methodsUrls = new EnumMap<>(RequestMethod.class);
+        controllers = new HashMap<>();
+        routers = new HashMap<>();
+        controllersIdGenerator = new IdGenerator();
+        routersIdGenerator = new IdGenerator();
     }
 
     public void initController(ControllerConfig conf) throws ConfigException {
         beforeInitControllerCheck(conf);
         List<String> idParams = httpUtils.getIdParams(conf.getUri());
         ControllerMode mode = identifyMode(idParams);
+        IdGenerator idGenerator = new IdGenerator();
 
         switch (conf.getMethod()) {
             case GET:
-                createGetController(conf, idParams, mode);
+                createGetController(conf, idParams, mode, idGenerator);
                 break;
             case POST:
-                createPostController(conf, idParams, mode);
+                createPostController(conf, idParams, mode, idGenerator);
                 break;
             case PUT:
-                createPutController(conf, idParams, mode);
+                createPutController(conf, idParams, mode, idGenerator);
                 break;
             case DELETE:
-                createDeleteController(conf, idParams, mode);
+                createDeleteController(conf, idParams, mode, idGenerator);
                 break;
             default:
                 throw new ConfigException(String.format("Method [%s] not supported", conf.getMethod()));
@@ -78,6 +79,9 @@ public class MappingConfigurator {
         if (conf.getMethod() == RequestMethod.GET && mode == ControllerMode.COLLECTION) {
             urls.add(httpUtils.getBaseUri(conf.getUri()));
         }
+
+        conf.setId(controllersIdGenerator.generateId(GeneratorPattern.SEQUENCE));
+        controllers.put(conf.getId(), conf);
     }
 
     private void beforeInitControllerCheck(ControllerConfig conf) throws ConfigException {
@@ -94,7 +98,8 @@ public class MappingConfigurator {
         }
     }
 
-    private void createGetController(ControllerConfig conf, List<String> idParams, ControllerMode mode) throws ConfigException {
+    private void createGetController(ControllerConfig conf, List<String> idParams, ControllerMode mode, IdGenerator idGenerator) throws ConfigException {
+
         if (mode == ControllerMode.COLLECTION) {
             conf.setIdParams(idParams);
 
@@ -110,7 +115,7 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(getAllMappingInfo, getAllController);
 
@@ -125,7 +130,7 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(getOneMappingInfo, getOneController);
 
@@ -142,13 +147,13 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(getStaticMappingInfo, getStaticController);
         }
     }
 
-    private void createPostController(ControllerConfig conf, List<String> idParams, ControllerMode mode) throws ConfigException {
+    private void createPostController(ControllerConfig conf, List<String> idParams, ControllerMode mode, IdGenerator idGenerator) throws ConfigException {
         if (mode == ControllerMode.COLLECTION) {
             conf.setIdParams(idParams);
 
@@ -164,7 +169,7 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(createOneInfo, createOneController);
 
@@ -181,13 +186,13 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(createStaticInfo, createStaticController);
         }
     }
 
-    private void createPutController(ControllerConfig conf, List<String> idParams, ControllerMode mode) throws ConfigException {
+    private void createPutController(ControllerConfig conf, List<String> idParams, ControllerMode mode, IdGenerator idGenerator) throws ConfigException {
         if (mode == ControllerMode.COLLECTION) {
             conf.setIdParams(idParams);
 
@@ -202,7 +207,7 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(updateOneInfo, updateOneController);
 
@@ -219,13 +224,13 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(updateStaticInfo, updateStaticController);
         }
     }
 
-    private void createDeleteController(ControllerConfig conf, List<String> idParams, ControllerMode mode) throws ConfigException {
+    private void createDeleteController(ControllerConfig conf, List<String> idParams, ControllerMode mode, IdGenerator idGenerator) throws ConfigException {
         if (mode == ControllerMode.COLLECTION) {
             conf.setIdParams(idParams);
 
@@ -240,7 +245,7 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(deleteOneInfo, deleteOneController);
 
@@ -257,7 +262,7 @@ public class MappingConfigurator {
                     .controllerConfig(conf)
                     .jsonUtils(jsonUtils)
                     .httpUtils(httpUtils)
-                    .generatorUtils(generatorUtils)
+                    .idGenerator(idGenerator)
                     .build();
             registerController(deleteStaticInfo, deleteStaticController);
         }
@@ -304,6 +309,9 @@ public class MappingConfigurator {
 
         List<String> urls = methodsUrls.computeIfAbsent(conf.getMethod(), key -> new ArrayList<>());
         urls.add(conf.getUri());
+
+        conf.setId(routersIdGenerator.generateId(GeneratorPattern.SEQUENCE));
+        routers.put(conf.getId(), conf);
     }
 
     private void beforeInitRouterCheck(RouterConfig conf) throws ConfigException {
@@ -345,5 +353,25 @@ public class MappingConfigurator {
         });
 
         log.info(builder.toString());
+    }
+
+    public List<ControllerConfig> getAllControllersCopy() {
+        List<ControllerConfig> copy = new ArrayList<>(controllers.size());
+        controllers.values().forEach(conf -> copy.add(conf.copy()));
+        return copy;
+    }
+
+    public ControllerConfig getControllerCopy(String id) {
+        return controllers.containsKey(id) ? controllers.get(id).copy() : null;
+    }
+
+    public List<RouterConfig> getAllRoutersCopy() {
+        List<RouterConfig> copy = new ArrayList<>(routers.size());
+        routers.values().forEach(conf -> copy.add(conf.copy()));
+        return copy;
+    }
+
+    public RouterConfig getRouterCopy(String id) {
+        return routers.containsKey(id) ? routers.get(id).copy() : null;
     }
 }

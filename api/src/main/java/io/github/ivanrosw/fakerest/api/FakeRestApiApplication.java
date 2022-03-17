@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ivanrosw.fakerest.core;
+package io.github.ivanrosw.fakerest.api;
 
-import org.springframework.boot.SpringApplication;
+import io.github.ivanrosw.fakerest.core.FakeRestApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = "io.github.ivanrosw.fakerest")
-public class FakeRestApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(FakeRestApplication.class, args);
-	}
+public class FakeRestApiApplication extends FakeRestApplication {
 
 }
