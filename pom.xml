@@ -103,48 +103,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--Generate license-->
-			<plugin>
-				<groupId>com.mycila</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<version>4.1</version>
-				<configuration>
-					<properties>
-						<owner-ivan>Ivan Rosinskii</owner-ivan>
-						<owner-lissntrixxx>Lissntrixxx</owner-lissntrixxx>
-						<year>2022</year>
-					</properties>
-					<licenseSets>
-						<licenseSet>
-							<header>lic/HEADER_IVAN</header>
-							<excludes>
-								<exclude>**/README</exclude>
-								<exclude>**/LICENSE</exclude>
-								<exclude>**/lic/**</exclude>
-								<exclude>**/pom.xml</exclude>
-								<exclude>**/src/test/resources/**</exclude>
-								<exclude>**/src/main/resources/**</exclude>
-								<exclude>**/ui/**</exclude>
-							</excludes>
-						</licenseSet>
-						<licenseSet>
-							<header>lic/HEADER_LISSNTRIXXX</header>
-							<excludes>
-								<exclude>**/README</exclude>
-								<exclude>**/LICENSE</exclude>
-								<exclude>**/lic/**</exclude>
-								<exclude>**/pom.xml</exclude>
-								<exclude>**/src/test/resources/**</exclude>
-								<exclude>**/src/main/resources/**</exclude>
-								<exclude>**/core/**</exclude>
-								<exclude>**/appbuild/**</exclude>
-								<exclude>**/api/**</exclude>
-							</excludes>
-						</licenseSet>
-					</licenseSets>
-				</configuration>
-			</plugin>
-			<!--Copy License-->
+			<!--Copy License to appbuild-->
 			<plugin>
 				<groupId>com.coderplus.maven.plugins</groupId>
 				<artifactId>copy-rename-maven-plugin</artifactId>
