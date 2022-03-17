@@ -50,7 +50,6 @@ public class JsonUtils {
                 result = mapper.readValue(json, type);
             } catch (Exception e) {
                 log.error("Error while converting string to json", e);
-
             }
         }
         return result;
@@ -62,6 +61,18 @@ public class JsonUtils {
 
     public ObjectNode toObjectNode(String json) {
         return toJson(json, ObjectNode.class);
+    }
+
+    public <T> ObjectNode toObjectNode(T obj) {
+        ObjectNode result = null;
+        if (obj != null) {
+            try {
+                result = mapper.convertValue(obj, ObjectNode.class);
+            } catch (Exception e) {
+                log.error("Error while converting {} to json", obj.getClass().getSimpleName(), e);
+            }
+        }
+        return result;
     }
 
     public String getString(JsonNode json, String key) {

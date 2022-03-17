@@ -41,6 +41,8 @@ public class MappingConfigurator {
     private HttpUtils httpUtils;
     @Autowired
     private RestClient restClient;
+    @Autowired
+    private YamlConfigurator yamlConfigurator;
 
     @PostConstruct
     private void init() {
@@ -50,6 +52,8 @@ public class MappingConfigurator {
         controllersIdGenerator = new IdGenerator();
         routersIdGenerator = new IdGenerator();
     }
+
+    //CONTROLLER
 
     public void initController(ControllerConfig conf) throws ConfigException {
         beforeInitControllerCheck(conf);
@@ -272,6 +276,15 @@ public class MappingConfigurator {
         return idParams.isEmpty() ? ControllerMode.STATIC : ControllerMode.COLLECTION;
     }
 
+    private void registerController(RequestMappingInfo requestMappingInfo, FakeController fakeController) throws ConfigException {
+        try {
+            handlerMapping.registerMapping(requestMappingInfo, fakeController,
+                    FakeController.class.getMethod("handle", HttpServletRequest.class));
+        } catch (Exception e) {
+            throw new ConfigException(String.format("Error while register controller %s", requestMappingInfo), e);
+        }
+    }
+
     private void loadAnswerData(ControllerConfig conf) {
         if (conf.getAnswer() != null) {
             JsonNode answer = jsonUtils.toJsonNode(conf.getAnswer());
@@ -292,6 +305,20 @@ public class MappingConfigurator {
         controllerData.putData(controllerConfig.getUri(), key, data);
     }
 
+    public void updateController(ControllerConfig conf) {
+        //TODO
+        //update in yaml
+        //restart
+    }
+
+    public void deleteController(ControllerConfig conf) {
+        //TODO
+        //delete from yaml
+        //restart
+    }
+
+    //ROUTER
+
     public void initRouter(RouterConfig conf) throws ConfigException {
         beforeInitRouterCheck(conf);
         RequestMappingInfo routerInfo = RequestMappingInfo
@@ -304,7 +331,7 @@ public class MappingConfigurator {
             handlerMapping.registerMapping(routerInfo, routerController,
                     RouterController.class.getMethod("handle", HttpServletRequest.class));
         } catch (Exception e) {
-            throw new ConfigException(String.format("Error while register router [%s]", routerInfo), e);
+            throw new ConfigException(String.format("Error while register router %s", routerInfo), e);
         }
 
         List<String> urls = methodsUrls.computeIfAbsent(conf.getMethod(), key -> new ArrayList<>());
@@ -328,14 +355,19 @@ public class MappingConfigurator {
         }
     }
 
-    private void registerController(RequestMappingInfo requestMappingInfo, FakeController fakeController) throws ConfigException {
-        try {
-            handlerMapping.registerMapping(requestMappingInfo, fakeController,
-                    FakeController.class.getMethod("handle", HttpServletRequest.class));
-        } catch (Exception e) {
-            throw new ConfigException(String.format("Error while register controller [%s]", requestMappingInfo), e);
-        }
+    public void updateRouter(RouterConfig conf) {
+        //TODO
+        //update in yaml
+        //restart
     }
+
+    public void deleteRouter(RouterConfig conf) {
+        //TODO
+        //delete from yaml
+        //restart
+    }
+
+    //UTILS
 
     public void printUrls() {
         StringBuilder builder = new StringBuilder();
