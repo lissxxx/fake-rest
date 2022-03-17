@@ -71,7 +71,7 @@ public class PostController extends FakeModifyController {
         Map<String, GeneratorPattern> generatorPatterns = controllerConfig.getGenerateIdPatterns();
         controllerConfig.getIdParams().forEach(idParam -> {
             GeneratorPattern pattern = generatorPatterns == null ? null : generatorPatterns.get(idParam);
-            jsonUtils.putString(data, idParam, generatorUtils.generateId(pattern));
+            jsonUtils.putString(data, idParam, idGenerator.generateId(pattern));
         });
     }
 

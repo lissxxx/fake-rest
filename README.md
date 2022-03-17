@@ -35,7 +35,7 @@ Controllers configuration contains parameters:
 - Method - GET, POST, PUT, DELETE
 - Answer - need for init data in controller collection or specify static returning data
 - GenerateId - flag for POST method. Should generate id or should use from body request
-- GenerateIdPatterns - UUID, Number. Uses if generateId is true. Default: number.
+- GenerateIdPatterns - UUID, Sequence. Uses if generateId is true. Default: sequence.
 - DelayMs - time to delay answer
 
 Controller works on 2 modes:

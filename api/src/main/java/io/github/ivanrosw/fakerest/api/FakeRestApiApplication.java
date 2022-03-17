@@ -13,31 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ivanrosw.fakerest.core;
+package io.github.ivanrosw.fakerest.api;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.SpringApplication;
+import io.github.ivanrosw.fakerest.core.FakeRestApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication(scanBasePackages = "io.github.ivanrosw.fakerest")
-public class FakeRestApplication {
+public class FakeRestApiApplication extends FakeRestApplication {
 
-	private static ConfigurableApplicationContext context;
-
-	public static void main(String[] args) {
-		context = SpringApplication.run(FakeRestApplication.class, args);
-	}
-
-	public static void restart() {
-		ApplicationArguments args = context.getBean(ApplicationArguments.class);
-
-		Thread thread = new Thread(() -> {
-			context.close();
-			context = SpringApplication.run(FakeRestApplication.class, args.getSourceArgs());
-		});
-
-		thread.setDaemon(false);
-		thread.start();
-	}
 }

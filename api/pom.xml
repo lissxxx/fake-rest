@@ -11,4 +11,12 @@
 
     <artifactId>api</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.github.ivanrosw</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

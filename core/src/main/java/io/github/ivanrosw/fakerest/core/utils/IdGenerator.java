@@ -16,17 +16,15 @@
 package io.github.ivanrosw.fakerest.core.utils;
 
 import io.github.ivanrosw.fakerest.core.model.GeneratorPattern;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Component
-public class GeneratorUtils {
+public class IdGenerator {
 
     private AtomicInteger atomicInteger;
 
-    public GeneratorUtils() {
+    public IdGenerator() {
         atomicInteger = new AtomicInteger();
     }
 
@@ -35,7 +33,7 @@ public class GeneratorUtils {
         if (pattern == GeneratorPattern.UUID) {
             result = generateUUID();
         } else {
-            result = generateNumber();
+            result = generateSequence();
         }
         return result;
     }
@@ -44,7 +42,7 @@ public class GeneratorUtils {
         return UUID.randomUUID().toString();
     }
 
-    private String generateNumber() {
+    private String generateSequence() {
         return String.valueOf(atomicInteger.incrementAndGet());
     }
 }

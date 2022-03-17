@@ -18,7 +18,7 @@ package io.github.ivanrosw.fakerest.core.controller;
 import io.github.ivanrosw.fakerest.core.model.ControllerData;
 import io.github.ivanrosw.fakerest.core.model.ControllerMode;
 import io.github.ivanrosw.fakerest.core.model.ControllerConfig;
-import io.github.ivanrosw.fakerest.core.utils.GeneratorUtils;
+import io.github.ivanrosw.fakerest.core.utils.IdGenerator;
 import io.github.ivanrosw.fakerest.core.utils.HttpUtils;
 import io.github.ivanrosw.fakerest.core.utils.JsonUtils;
 import lombok.AccessLevel;
@@ -46,7 +46,7 @@ public abstract class FakeController {
 
     protected JsonUtils jsonUtils;
     protected HttpUtils httpUtils;
-    protected GeneratorUtils generatorUtils;
+    protected IdGenerator idGenerator;
 
     public abstract ResponseEntity<String> handle(HttpServletRequest request);
 

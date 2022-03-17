@@ -15,21 +15,25 @@
  */
 package io.github.ivanrosw.fakerest.core.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouterConfig {
-
-    private String uri;
-
-    private RequestMethod method;
+@ToString
+public class RouterConfig extends BaseUriConfig implements Copyable<RouterConfig> {
 
     private String toUrl;
+
+    @Override
+    public RouterConfig copy() {
+        RouterConfig copy = new RouterConfig();
+        copy.setId(this.getId());
+        copy.setUri(this.getUri());
+        copy.setMethod(this.getMethod());
+        copy.setToUrl(toUrl);
+        return copy;
+    }
 }

@@ -26,6 +26,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * Bean contains all data for Controllers with mode {@link io.github.ivanrosw.fakerest.core.model.ControllerMode#COLLECTION}
+ * And methods to work with data
+ */
+
 @Component
 public class ControllerData {
 
